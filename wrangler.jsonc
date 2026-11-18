@@ -21,6 +21,9 @@
     ]
   },
   "observability": { "enabled": true },
+  // Needed by `npx wrangler preview`, which Workers Builds runs for PR branches.
+  // Settings stay at the top level; the block can be empty.
+  "previews": {},
   // Secrets are set in the dashboard or with `wrangler secret put`:
   // N8N_WEBHOOK_URL, N8N_WEBHOOK_TOKEN, TURNSTILE_SECRET. keep_vars stops a
   // deploy from wiping variables added in the dashboard.
