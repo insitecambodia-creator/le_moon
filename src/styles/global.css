@@ -1,16 +1,18 @@
 :root {
-  --night: #0b1020;
-  --night-2: #121a31;
-  --night-3: #1b2542;
+  --night: #0b1127;
+  --night-2: #131c3c;
+  --night-3: #1d2a5a;
   --ink: #141414;
   --cream: #f3ece0;
   --muted: #b3b0aa;
-  --gold: #d6b46a;
-  --gold-2: #e8cf94;
-  /* Official logo colours. */
+  /* Official logo colours. The blue is too dark for text on navy, so links use a light tint of it. */
   --brand-blue: #35509e;
   --brand-orange: #ee752c;
-  --line: rgba(243, 236, 224, 0.12);
+  --accent: var(--brand-orange);
+  --accent-2: #f5965c;
+  --link: #a9b9ee;
+  --link-hover: #c9d4f6;
+  --line: rgba(169, 185, 238, 0.16);
   --error: #ff8f80;
   --ok: #9fd8a8;
   --display: 'Fjalla One', 'Arial Narrow', Impact, sans-serif;
@@ -31,8 +33,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 img { max-width: 100%; height: auto; display: block; }
-a { color: var(--gold-2); text-underline-offset: 3px; }
-a:hover { color: var(--gold); }
+a { color: var(--link); text-underline-offset: 3px; }
+a:hover { color: var(--link-hover); }
 
 h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.15; margin: 0 0 1rem; letter-spacing: 0.02em; }
 h1, h2 { text-transform: uppercase; letter-spacing: 0.03em; }
@@ -44,7 +46,7 @@ p { margin: 0 0 1rem; }
 .wrap { width: min(1160px, 100% - 2rem); margin-inline: auto; }
 .narrow { width: min(760px, 100% - 2rem); margin-inline: auto; }
 .section { padding: clamp(3.5rem, 8vw, 6rem) 0; }
-.eyebrow { font-family: var(--sans); font-size: 0.75rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.9rem; display: block; }
+.eyebrow { font-family: var(--sans); font-size: 0.75rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.9rem; display: block; }
 .lead { font-size: 1.2rem; color: var(--cream); max-width: 60ch; }
 .muted { color: var(--muted); }
 .center { text-align: center; }
@@ -52,12 +54,12 @@ p { margin: 0 0 1rem; }
 
 .btn {
   display: inline-block; padding: 0.8rem 1.5rem; border-radius: 999px; font-weight: 600; font-size: 0.95rem;
-  text-decoration: none; border: 1px solid var(--gold); color: var(--gold); background: transparent; cursor: pointer;
+  text-decoration: none; border: 1px solid var(--accent); color: var(--accent); background: transparent; cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
-.btn:hover { background: var(--gold); color: var(--ink); }
-.btn-gold { background: var(--gold); color: var(--ink); }
-.btn-gold:hover { background: var(--gold-2); color: var(--ink); }
+.btn:hover { background: var(--accent); color: var(--ink); }
+.btn-primary { background: var(--accent); color: var(--ink); }
+.btn-primary:hover { background: var(--accent-2); color: var(--ink); }
 .btn-row { display: flex; flex-wrap: wrap; gap: 0.8rem; }
 .center .btn-row { justify-content: center; }
 
@@ -67,18 +69,18 @@ p { margin: 0 0 1rem; }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
 .card { background: var(--night-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.6rem; }
 .card h3 { margin-bottom: 0.5rem; }
-.price { font-family: var(--display); font-size: 2rem; color: var(--gold); }
+.price { font-family: var(--display); font-size: 2rem; color: var(--accent); }
 
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
 @media (max-width: 860px) { .split { grid-template-columns: 1fr; } }
 
-.media-frame { border-radius: var(--radius); overflow: hidden; background: linear-gradient(160deg, var(--night-3), #2a2140); aspect-ratio: 4 / 3; }
+.media-frame { border-radius: var(--radius); overflow: hidden; background: linear-gradient(160deg, var(--night-3), #22306a); aspect-ratio: 4 / 3; }
 .media-frame img { width: 100%; height: 100%; object-fit: cover; }
 
-.skip { position: absolute; left: -999px; top: 0; background: var(--gold); color: var(--ink); padding: 0.6rem 1rem; z-index: 100; }
+.skip { position: absolute; left: -999px; top: 0; background: var(--accent); color: var(--ink); padding: 0.6rem 1rem; z-index: 100; }
 .skip:focus { left: 0.5rem; top: 0.5rem; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 .prose h2 { font-size: 1.7rem; margin-top: 2.2rem; }
 .prose ul { padding-left: 1.2rem; }

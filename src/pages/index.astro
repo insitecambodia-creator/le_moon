@@ -22,7 +22,7 @@ const reviews = [
     <h1>Le Moon Rooftop Lounge</h1>
     <p class="lead">Cocktails, dinner and a 270-degree view over two rivers and the city, every evening from 5pm.</p>
     <div class="btn-row">
-      <a class="btn btn-gold" href="/booking/">Book a table</a>
+      <a class="btn btn-primary" href="/booking/">Book a table</a>
       <a class="btn" href="/menu/">See the menu</a>
     </div>
   </Hero>
@@ -95,7 +95,7 @@ const reviews = [
       <h2>Save your seat for sunset</h2>
       <p class="lead">Send a booking request online and our team will confirm by email. For tonight or large groups, call or message us.</p>
       <div class="btn-row">
-        <a class="btn btn-gold" href="/booking/">Book a table</a>
+        <a class="btn btn-primary" href="/booking/">Book a table</a>
         <a class="btn" href={`tel:${site.phone.e164}`}>Call {site.phone.display}</a>
         <a class="btn" href={site.telegram.url} rel="noopener">Telegram</a>
       </div>
@@ -105,6 +105,6 @@ const reviews = [
 <style>
   .alt { background: linear-gradient(180deg, var(--night), var(--night-2) 50%, var(--night)); }
   .card.link { text-decoration: none; color: inherit; transition: border-color 0.2s, transform 0.2s; }
-  .card.link:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .card.link:hover { border-color: var(--accent); transform: translateY(-2px); }
   blockquote { margin: 0 0 1rem; font-size: 1.1rem; font-style: italic; }
 </style>

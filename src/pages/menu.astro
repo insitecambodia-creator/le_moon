@@ -15,8 +15,8 @@ import { photo } from '../lib/images';
       <h1>The menu</h1>
       <p class="lead">Classic and original cocktails, mocktails, wines and beers, with finger food, small plates and full dinners from the kitchen.</p>
       <div class="btn-row" style="justify-content:center">
-        <a class="btn btn-gold" href={menus.food.href} data-track="click_menu_pdf">{menus.food.label} (PDF)</a>
-        <a class="btn btn-gold" href={menus.drinks.href} data-track="click_menu_pdf">{menus.drinks.label} (PDF)</a>
+        <a class="btn btn-primary" href={menus.food.href} data-track="click_menu_pdf">{menus.food.label} (PDF)</a>
+        <a class="btn btn-primary" href={menus.drinks.href} data-track="click_menu_pdf">{menus.drinks.label} (PDF)</a>
         <a class="btn" href={menus.kids.href} data-track="click_menu_pdf">{menus.kids.label}</a>
       </div>
       <p class="muted small">Menus updated {menus.updated}. Prices in US dollars.</p>
@@ -56,7 +56,7 @@ import { photo } from '../lib/images';
     <div class="narrow">
       <h2>Hungry already?</h2>
       <p class="lead">Book a table for tonight or any evening, from 5pm.</p>
-      <a class="btn btn-gold" href="/booking/">Book a table</a>
+      <a class="btn btn-primary" href="/booking/">Book a table</a>
     </div>
   </section>
 </BaseLayout>
