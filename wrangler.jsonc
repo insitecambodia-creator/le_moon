@@ -1,9 +1,28 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "le-moon",
+  "main": "worker/index.ts",
   "compatibility_date": "2026-11-01",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "404-page"
-  }
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    // The Worker only runs for the booking API and the removed event pages (410).
+    // Everything else is served straight from dist/ as static files.
+    "run_worker_first": [
+      "/api/*",
+      "/countdown-2025*",
+      "/davidwazo-renaissance-tour-2025*",
+      "/le-moon-xmas-with-heineken*",
+      "/blue-souls-event*",
+      "/miss-sarawan-and-friends*",
+      "/international-womens-day*",
+      "/phnom-penh-funketeers*"
+    ]
+  },
+  "observability": { "enabled": true },
+  // Secrets are set in the dashboard or with `wrangler secret put`:
+  // N8N_WEBHOOK_URL, N8N_WEBHOOK_TOKEN, TURNSTILE_SECRET. keep_vars stops a
+  // deploy from wiping variables added in the dashboard.
+  "keep_vars": true
 }

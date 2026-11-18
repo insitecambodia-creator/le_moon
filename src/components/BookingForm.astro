@@ -1,0 +1,288 @@
+---
+// One form component for table, birthday and group requests. It posts JSON to
+// /api/booking (worker/index.ts), which checks Turnstile and forwards to n8n.
+// Nothing here confirms a booking: staff confirm or decline in Telegram.
+import { site } from '../lib/site';
+import { t } from '../i18n';
+import { limits, timeSlots, slotLabel, sources, months, type FormType } from '../lib/booking';
+
+interface Props {
+  type: FormType;
+  /** For group packages: value/label pairs shown as radio buttons. */
+  packages?: { value: string; label: string }[];
+}
+const { type, packages = [] } = Astro.props;
+const l = limits[type];
+const slots = timeSlots(l.firstSlot, l.lastSlot);
+const guestOptions = Array.from({ length: l.maxGuests - l.minGuests + 1 }, (_, i) => l.minGuests + i);
+const thankYou = type === 'table' ? '/booking/thank-you/' : `/${type}/thank-you/`;
+const id = (name: string) => `${type}-${name}`;
+---
+<form class="booking-form" data-form-type={type} data-thank-you={thankYou} data-phone={site.phone.e164} data-phone-display={site.phone.display} data-telegram={site.telegram.url} novalidate>
+  <p class="form-note">{t('form.notConfirmed')}</p>
+
+  <div class="row">
+    <div class="field">
+      <label for={id('first')}>{t('form.firstName')}</label>
+      <input id={id('first')} name="firstName" autocomplete="given-name" required maxlength="60" />
+    </div>
+    <div class="field">
+      <label for={id('last')}>{t('form.lastName')}</label>
+      <input id={id('last')} name="lastName" autocomplete="family-name" required maxlength="60" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label for={id('email')}>{t('form.email')}</label>
+      <input id={id('email')} name="email" type="email" autocomplete="email" required maxlength="120" />
+    </div>
+    <div class="field">
+      <label for={id('phone')}>{t('form.phone')}</label>
+      <input id={id('phone')} name="phone" type="tel" autocomplete="tel" required maxlength="30" pattern="[0-9\s+\(\)\.\-]{6,30}" />
+    </div>
+  </div>
+
+  {type === 'groups' && (
+    <div class="field">
+      <label for={id('company')}>{t('form.company')}</label>
+      <input id={id('company')} name="company" autocomplete="organization" maxlength="120" />
+    </div>
+  )}
+
+  <div class="row three">
+    <div class="field">
+      <label for={id('date')}>{t('form.date')}</label>
+      <input id={id('date')} name="date" type="date" required data-min-today />
+    </div>
+    <div class="field">
+      <label for={id('time')}>{t('form.time')}</label>
+      <select id={id('time')} name="time" required>
+        <option value="">Choose a time</option>
+        {slots.map((s) => <option value={s}>{slotLabel(s)}</option>)}
+      </select>
+    </div>
+    <div class="field">
+      <label for={id('guests')}>{t('form.guests')}</label>
+      {type === 'groups' ? (
+        <input id={id('guests')} name="guests" type="number" inputmode="numeric" min={l.minGuests} max={l.maxGuests} required />
+      ) : (
+        <select id={id('guests')} name="guests" required>
+          <option value="">Guests</option>
+          {guestOptions.map((n) => <option value={n}>{n}</option>)}
+        </select>
+      )}
+    </div>
+  </div>
+  {type !== 'groups' && (
+    <p class="hint">
+      {t('form.largerGroups', 'en', { max: l.maxGuests })} <a href={`tel:${site.phone.e164}`}>{site.phone.display}</a> · <a href={site.telegram.url} rel="noopener">Telegram</a>
+    </p>
+  )}
+
+  {type === 'birthday' && (
+    <fieldset class="field">
+      <legend>{t('form.birthday')}</legend>
+      <div class="row">
+        <select name="birthDay" aria-label={t('form.day')} required>
+          <option value="">{t('form.day')}</option>
+          {Array.from({ length: 31 }, (_, i) => <option value={i + 1}>{i + 1}</option>)}
+        </select>
+        <select name="birthMonth" aria-label={t('form.month')} required>
+          <option value="">{t('form.month')}</option>
+          {months.map((m, i) => <option value={i + 1}>{m}</option>)}
+        </select>
+      </div>
+      <label class="check"><input type="checkbox" name="ownCake" value="yes" /> {t('form.ownCake')}</label>
+    </fieldset>
+  )}
+
+  {type === 'groups' && packages.length > 0 && (
+    <fieldset class="field">
+      <legend>{t('form.package')}</legend>
+      {packages.map((p, i) => (
+        <label class="check"><input type="radio" name="package" value={p.value} required={i === 0} /> {p.label}</label>
+      ))}
+      <label class="check"><input type="radio" name="package" value="undecided" /> Not sure yet, please advise</label>
+    </fieldset>
+  )}
+  {type === 'groups' && (
+    <div class="row">
+      <div class="field">
+        <label for={id('jars')}>Cocktail party jars (3 litres, about 20 glasses)</label>
+        <input id={id('jars')} name="cocktailJars" type="number" inputmode="numeric" min="0" max="20" value="0" />
+      </div>
+      <fieldset class="field">
+        <legend>Food</legend>
+        <label class="check"><input type="checkbox" name="food" value="yes" /> Yes, please send me the food options</label>
+      </fieldset>
+    </div>
+  )}
+
+  {type !== 'groups' && (
+    <div class="row">
+      <div class="field">
+        <label for={id('source')}>{t('form.source')}</label>
+        <select id={id('source')} name="source">
+          <option value="">Choose one (optional)</option>
+          {sources.map((s) => <option>{s}</option>)}
+        </select>
+      </div>
+      <fieldset class="field">
+        <legend>{t('form.firstVisit')}</legend>
+        <div class="inline">
+          <label class="check"><input type="radio" name="firstVisit" value="yes" /> {t('form.yes')}</label>
+          <label class="check"><input type="radio" name="firstVisit" value="no" /> {t('form.no')}</label>
+        </div>
+      </fieldset>
+    </div>
+  )}
+
+  <div class="field">
+    <label for={id('message')}>{t('form.message')}</label>
+    <textarea id={id('message')} name="message" rows="3" maxlength="1000"></textarea>
+  </div>
+
+  <!-- Honeypot: people never see or fill this. -->
+  <div class="hp" aria-hidden="true">
+    <label>Website <input name="website" tabindex="-1" autocomplete="off" /></label>
+  </div>
+
+  <label class="check consent">
+    <input type="checkbox" name="consent" value="yes" required />
+    <span>{t('form.consent')} <a href="/privacy/">{t('form.privacy')}</a>.</span>
+  </label>
+
+  {site.turnstileSiteKey ? (
+    <div class="cf-turnstile" data-sitekey={site.turnstileSiteKey} data-theme="dark" data-size="flexible"></div>
+  ) : (
+    <p class="hint">Security check not configured on this build (PUBLIC_TURNSTILE_SITE_KEY).</p>
+  )}
+
+  <button type="submit" class="btn btn-gold submit">{t(`form.submit.${type}`)}</button>
+  <p class="status" role="alert" aria-live="assertive" hidden></p>
+</form>
+
+{site.turnstileSiteKey && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
+
+<script>
+  // Today's date in Phnom Penh (UTC+7), so the date picker never offers the past.
+  function todayInPhnomPenh(): string {
+    const d = new Date(Date.now() + 7 * 3600 * 1000);
+    return d.toISOString().slice(0, 10);
+  }
+
+  document.querySelectorAll<HTMLFormElement>('form.booking-form').forEach((form) => {
+    const today = todayInPhnomPenh();
+    const maxDate = new Date(Date.now() + 7 * 3600 * 1000 + 365 * 86400 * 1000).toISOString().slice(0, 10);
+    form.querySelectorAll<HTMLInputElement>('input[data-min-today]').forEach((el) => {
+      el.min = today;
+      el.max = maxDate;
+    });
+
+    const status = form.querySelector<HTMLElement>('.status')!;
+    const button = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+    const label = button.textContent;
+
+    const show = (text: string, html = false) => {
+      status.hidden = false;
+      if (html) status.innerHTML = text;
+      else status.textContent = text;
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.hidden = true;
+      form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+
+      if (!form.checkValidity()) {
+        const invalid = Array.from(form.elements).filter(
+          (el): el is HTMLInputElement => 'validity' in el && !(el as HTMLInputElement).validity.valid,
+        );
+        invalid.forEach((el) => el.setAttribute('aria-invalid', 'true'));
+        invalid[0]?.focus();
+        show('Please check the highlighted fields.');
+        return;
+      }
+
+      const data = new FormData(form);
+      const token = String(data.get('cf-turnstile-response') ?? '');
+      if (form.querySelector('.cf-turnstile') && !token) {
+        show('Please complete the security check and try again.');
+        return;
+      }
+
+      const type = form.dataset.formType!;
+      const payload: Record<string, unknown> = { formType: type, locale: document.documentElement.lang || 'en', page: location.pathname };
+      for (const [k, v] of data.entries()) {
+        if (k !== 'cf-turnstile-response') payload[k] = String(v).trim();
+      }
+      payload.turnstileToken = token;
+
+      button.disabled = true;
+      button.textContent = 'Sending…';
+      try {
+        const res = await fetch('/api/booking', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const body = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; fields?: string[] };
+        if (res.ok && body.ok) {
+          try {
+            sessionStorage.setItem(
+              'lemoon-booking',
+              JSON.stringify({ firstName: payload.firstName, formType: type, guests: Number(payload.guests) || undefined, date: payload.date, time: payload.time, sent: Date.now() }),
+            );
+          } catch {}
+          location.href = form.dataset.thankYou!;
+          return;
+        }
+        if (body.fields?.length) {
+          body.fields.forEach((f) => form.querySelector(`[name="${f}"]`)?.setAttribute('aria-invalid', 'true'));
+          show('Please check the highlighted fields.');
+        } else if (body.error === 'captcha') {
+          show('Please complete the security check and try again.');
+        } else {
+          throw new Error(body.error || String(res.status));
+        }
+      } catch {
+        const { phone, phoneDisplay, telegram } = form.dataset;
+        show(
+          `Sorry, we could not send your request. Please call <a href="tel:${phone}">${phoneDisplay}</a> or message us on <a href="${telegram}">Telegram</a> and we will book you in.`,
+          true,
+        );
+      } finally {
+        (window as unknown as { turnstile?: { reset: () => void } }).turnstile?.reset();
+        button.disabled = false;
+        button.textContent = label;
+      }
+    });
+  });
+</script>
+
+<style>
+  .booking-form { background: var(--night-2); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(1.25rem, 4vw, 2.25rem); display: grid; gap: 1.1rem; }
+  .form-note { background: rgba(214, 180, 106, 0.1); border-left: 3px solid var(--gold); padding: 0.8rem 1rem; border-radius: 6px; font-size: 0.95rem; margin: 0; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .row.three { grid-template-columns: 1.3fr 1fr 1fr; }
+  @media (max-width: 640px) { .row, .row.three { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 0.35rem; min-width: 0; }
+  fieldset { border: 0; padding: 0; margin: 0; }
+  label, legend { font-size: 0.9rem; color: var(--muted); padding: 0; }
+  input:not([type=checkbox]):not([type=radio]), select, textarea {
+    width: 100%; font: inherit; font-size: 1rem; color: var(--cream); background: var(--night); border: 1px solid var(--line);
+    border-radius: 10px; padding: 0.75rem 0.85rem; min-height: 48px;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--gold); outline: none; }
+  [aria-invalid='true'] { border-color: var(--error) !important; }
+  .check { display: flex; gap: 0.6rem; align-items: flex-start; color: var(--cream); font-size: 0.95rem; cursor: pointer; margin-top: 0.3rem; }
+  .check input { accent-color: var(--gold); width: 1.15rem; height: 1.15rem; margin-top: 0.2rem; flex: none; }
+  .inline { display: flex; gap: 1.5rem; }
+  .hint { font-size: 0.88rem; color: var(--muted); margin: -0.4rem 0 0; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .submit { justify-self: start; padding: 0.95rem 2rem; font-size: 1rem; }
+  .submit:disabled { opacity: 0.6; cursor: wait; }
+  .status { margin: 0; color: var(--error); }
+  .status :global(a) { color: var(--gold-2); }
+</style>

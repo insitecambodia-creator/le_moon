@@ -1,0 +1,67 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BookingForm from '../../components/BookingForm.astro';
+import { photo } from '../../lib/images';
+
+const tiers = [
+  { guests: '4 to 7 guests', perks: ['1 small fruit platter'] },
+  { guests: '8 to 12 guests', perks: ['1 large fruit platter', '15% off food and drinks (non-promotional items)'] },
+  { guests: '13 guests or more', perks: ['Sofa and table setup', '1 extra-large fruit platter', '15% off food and drinks (non-promotional items)'] },
+];
+---
+<BaseLayout
+  title="Birthday parties on the rooftop"
+  description="Celebrate your birthday at Le Moon Rooftop in Phnom Penh: a free cocktail for the birthday guest, free fruit platters and discounts for groups, and bring your own cake at no charge."
+  image="/og/birthday.jpg"
+  breadcrumbs={[{ name: 'Birthdays', path: '/birthday/' }]}
+>
+  <section class="page-hero">
+    <div class="narrow">
+      <span class="eyebrow">Happy birthday</span>
+      <h1>Birthday parties at Le Moon</h1>
+      <p class="lead">One free cocktail for the guest celebrating their birthday, plus treats for the whole table.</p>
+      <a class="btn btn-gold" href="#book">Request a birthday table</a>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:1rem">
+    <div class="wrap">
+      <h2 class="center">Group birthday offers</h2>
+      <div class="cards">
+        {tiers.map((t) => (
+          <div class="card">
+            <h3>{t.guests}</h3>
+            <span class="eyebrow">Free</span>
+            <ul>{t.perks.map((p) => <li>{p}</li>)}</ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap split">
+      <div class="media-frame">
+        {photo('birthday-hero') && <Image src={photo('birthday-hero')!} alt="A group of friends celebrating a birthday on the rooftop at dusk" widths={[480, 800, 1280]} sizes="(max-width: 860px) 100vw, 50vw" />}
+      </div>
+      <div>
+        <h2>Bring your own cake</h2>
+        <p class="lead">At no extra charge.</p>
+        <p class="muted">Drop your cake off any time before the party and we will keep it chilled for you. For groups of 13 or more, we set up sofas and a table for you, free of charge.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="book">
+    <div class="narrow">
+      <h2 class="center">Request a birthday table</h2>
+      <p class="center muted">For 2 to 20 guests. For a bigger party, call us or see <a href="/groups/">group bookings</a>.</p>
+      <BookingForm type="birthday" />
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  ul { padding-left: 1.1rem; margin: 0; }
+  .card .eyebrow { margin: 0.5rem 0 0.3rem; }
+</style>

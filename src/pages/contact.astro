@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../lib/site';
+---
+<BaseLayout
+  title="Contact and directions"
+  description="Find Le Moon Rooftop Lounge on the rooftop of the Amanjaya Pancam Hotel, Sisowath Quay, Phnom Penh. Open daily from 5pm. Call, message us on Telegram or book online."
+  breadcrumbs={[{ name: 'Contact', path: '/contact/' }]}
+>
+  <section class="page-hero">
+    <div class="narrow">
+      <span class="eyebrow">Contact</span>
+      <h1>Find us on the riverside</h1>
+      <p class="lead">Take the lift to the top of the Amanjaya Pancam Hotel, on Sisowath Quay by the river.</p>
+    </div>
+  </section>
+  <section class="section" style="padding-top:1rem">
+    <div class="wrap split top">
+      <div class="cards one">
+        <div class="card">
+          <span class="eyebrow">Address</span>
+          <p>Le Moon Rooftop Lounge<br />{site.address.venue}<br />{site.address.street}<br />{site.address.locality}, Cambodia</p>
+          <a href={site.mapLink} rel="noopener">Open in Google Maps</a>
+        </div>
+        <div class="card">
+          <span class="eyebrow">Opening hours</span>
+          <p>{site.hours.label}</p>
+        </div>
+        <div class="card">
+          <span class="eyebrow">Bookings and questions</span>
+          <p>
+            Phone: <a href={`tel:${site.phone.e164}`}>{site.phone.display}</a><br />
+            Telegram: <a href={site.telegram.url} rel="noopener">@{site.telegram.handle}</a>
+            {site.email && <><br />Email: <a href={`mailto:${site.email}`}>{site.email}</a></>}
+          </p>
+          <a class="btn btn-gold" href="/booking/">Book a table online</a>
+        </div>
+      </div>
+      <div class="map">
+        <iframe src={site.mapEmbed} title="Map showing Le Moon Rooftop Lounge in Phnom Penh" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .top { align-items: stretch; }
+  .one { grid-template-columns: 1fr; }
+  .map { border-radius: var(--radius); overflow: hidden; min-height: 420px; border: 1px solid var(--line); }
+  .map iframe { width: 100%; height: 100%; min-height: 420px; border: 0; filter: invert(0.9) hue-rotate(180deg); }
+</style>

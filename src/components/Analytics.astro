@@ -1,0 +1,36 @@
+---
+import { site } from '../lib/site';
+const gtmId = site.gtmId;
+---
+<script is:inline define:vars={{ gtmId }}>
+  window.dataLayer = window.dataLayer || [];
+  // Click events for GTM: tel:, Telegram, email, booking links, menu PDFs.
+  document.addEventListener('click', function (e) {
+    var a = e.target instanceof Element ? e.target.closest('a') : null;
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+    var ev = a.dataset.track ||
+      (href.indexOf('tel:') === 0 ? 'click_phone' :
+       href.indexOf('mailto:') === 0 ? 'click_email' :
+       /t\.me\//.test(href) ? 'click_telegram' :
+       /^\/(booking|birthday|groups)\/$/.test(href) ? 'click_booking' :
+       /^\/menus\//.test(href) ? 'click_menu_pdf' : '');
+    if (ev) window.dataLayer.push({ event: ev, link_url: a.href, link_text: (a.textContent || '').trim().slice(0, 80) });
+  }, { capture: true });
+
+  if (gtmId) {
+    // Load GTM after the first interaction or 3 s after load, so it never slows the page.
+    var loaded = false;
+    var load = function () {
+      if (loaded) return; loaded = true;
+      window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+      var s = document.createElement('script');
+      s.async = true; s.src = 'https://www.googletagmanager.com/gtm.js?id=' + gtmId;
+      document.head.appendChild(s);
+    };
+    ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(function (t) {
+      addEventListener(t, load, { once: true, passive: true });
+    });
+    addEventListener('load', function () { setTimeout(load, 3000); });
+  }
+</script>

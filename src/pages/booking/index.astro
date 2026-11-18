@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BookingForm from '../../components/BookingForm.astro';
+import { site } from '../../lib/site';
+---
+<BaseLayout
+  title="Book a table"
+  description="Request a table at Le Moon Rooftop Lounge in Phnom Penh for up to 6 guests, any evening from 5pm. We confirm every booking by email."
+  breadcrumbs={[{ name: 'Book a table', path: '/booking/' }]}
+>
+  <section class="page-hero">
+    <div class="narrow">
+      <span class="eyebrow">{site.hours.label}</span>
+      <h1>Book the best seats</h1>
+      <p class="lead">Send us your request and our team will confirm by email. For tonight, or for more than 6 guests, call <a href={`tel:${site.phone.e164}`}>{site.phone.display}</a> or message us on <a href={site.telegram.url} rel="noopener">Telegram</a>.</p>
+    </div>
+  </section>
+  <section class="section" style="padding-top:0.5rem">
+    <div class="narrow">
+      <BookingForm type="table" />
+      <p class="center muted small">Celebrating? Use the <a href="/birthday/#book">birthday form</a> for your free birthday cocktail. Coming with 20 or more? See <a href="/groups/">group packages</a>.</p>
+    </div>
+  </section>
+</BaseLayout>
+<style>.small { font-size: 0.92rem; margin-top: 1.25rem; }</style>

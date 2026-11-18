@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../lib/site';
+// DRAFT for Le Moon to review. Kept out of search (noindex) until approved.
+---
+<BaseLayout
+  title="Booking terms"
+  description="The terms for table, birthday and group booking requests at Le Moon Rooftop Lounge, Phnom Penh."
+  noindex
+  breadcrumbs={[{ name: 'Terms', path: '/terms/' }]}
+>
+  <section class="page-hero"><div class="narrow"><h1>Booking terms</h1></div></section>
+  <article class="narrow prose">
+    <h2>Requests and confirmation</h2>
+    <p>A form on this website sends a booking request, not a confirmed booking. Your table is booked only once we confirm it by email or message. If we cannot offer the time you asked for, we will tell you and suggest another one where we can.</p>
+
+    <h2>Arriving and changes</h2>
+    <p>Please let us know as early as you can if you are running late, need to change the number of guests or have to cancel: call <a href={`tel:${site.phone.e164}`}>{site.phone.display}</a> or message us on <a href={site.telegram.url}>Telegram</a>. We may give a table to other guests if you have not arrived and we have not heard from you.</p>
+
+    <h2>Offers</h2>
+    <p>Birthday, group and monthly offers apply as described on the website at the time of booking. Offers may change from month to month.</p>
+
+    <h2>Weather</h2>
+    <p>Le Moon is an open-air rooftop. In heavy rain we will move guests to covered areas where possible.</p>
+
+    <p class="muted">Last updated: November 2026.</p>
+  </article>
+</BaseLayout>

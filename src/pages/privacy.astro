@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../lib/site';
+// DRAFT for Le Moon to review. Kept out of search (noindex) until approved.
+---
+<BaseLayout
+  title="Privacy notice"
+  description="How Le Moon Rooftop Lounge collects, uses and keeps the details you send with a booking request or enquiry."
+  noindex
+  breadcrumbs={[{ name: 'Privacy', path: '/privacy/' }]}
+>
+  <section class="page-hero"><div class="narrow"><h1>Privacy notice</h1></div></section>
+  <article class="narrow prose">
+    <p>This notice explains what Le Moon Rooftop Lounge ("we") does with the details you give us through this website.</p>
+
+    <h2>What we collect</h2>
+    <p>When you send a table, birthday or group request we receive the details you type in the form: your name, email address and phone number, the date, time and number of guests, and anything else you choose to tell us, such as your birth day and month, your company name or a message. We also record the time of the request and the country it came from.</p>
+
+    <h2>Why we use it</h2>
+    <ul>
+      <li>To check availability and confirm or decline your request.</li>
+      <li>To contact you about your booking by email, phone, Telegram or WhatsApp.</li>
+      <li>To prepare birthday offers, if you tell us it is a birthday.</li>
+    </ul>
+    <p>We do not sell your details or use them for marketing unless you ask us to.</p>
+
+    <h2>Where it is kept</h2>
+    <p>Requests are passed through Cloudflare (which hosts this site and runs the spam check), then to our booking system, which records them in a Google Sheet, sends emails and notifies our staff on Telegram. Only Le Moon staff who handle bookings can see them. We keep booking records for up to 24 months, then delete them.</p>
+
+    <h2>Spam protection</h2>
+    <p>The forms use Cloudflare Turnstile to check that a person, not a bot, is sending the request. Cloudflare may process technical data about your browser to do this.</p>
+
+    <h2>Analytics and cookies</h2>
+    <p>We use Google Tag Manager and Google Analytics to understand how people use the site, for example which pages are visited and how many booking requests are sent. These tools may set cookies. You can block them in your browser settings without affecting the booking forms.</p>
+
+    <h2>Your choices</h2>
+    <p>You can ask us to see, correct or delete the details we hold about you at any time: call <a href={`tel:${site.phone.e164}`}>{site.phone.display}</a> or message us on <a href={site.telegram.url}>Telegram</a>.</p>
+
+    <p class="muted">Last updated: November 2026.</p>
+  </article>
+</BaseLayout>
