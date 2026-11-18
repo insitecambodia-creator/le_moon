@@ -16,7 +16,7 @@ export function businessSchema() {
     telephone: site.phone.e164,
     ...(site.email ? { email: site.email } : {}),
     image: [abs('/og/default.jpg')],
-    logo: abs('/favicon.svg'),
+    logo: abs('/brand/logo-on-white.png'),
     priceRange: '$$',
     servesCuisine: ['Cocktails', 'Khmer', 'International'],
     acceptsReservations: abs('/booking/'),

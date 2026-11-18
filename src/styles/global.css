@@ -7,6 +7,9 @@
   --muted: #b3b0aa;
   --gold: #d6b46a;
   --gold-2: #e8cf94;
+  /* Official logo colours. */
+  --brand-blue: #35509e;
+  --brand-orange: #ee752c;
   --line: rgba(243, 236, 224, 0.12);
   --error: #ff8f80;
   --ok: #9fd8a8;
