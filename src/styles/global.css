@@ -3,16 +3,16 @@
   --night-2: #131c3c;
   --night-3: #1d2a5a;
   --ink: #141414;
-  --cream: #f3ece0;
+  --cream: #f3e7db;
   --muted: #b3b0aa;
-  /* Official logo colours. The blue is too dark for text on navy, so links use a light tint of it. */
-  --brand-blue: #35509e;
-  --brand-orange: #ee752c;
+  /* Official brand colours (from Le Moon artwork). The blue is too dark for text on navy, so links use a light tint of it. */
+  --brand-blue: #283d8f;
+  --brand-orange: #e45e1d;
   --accent: var(--brand-orange);
-  --accent-2: #f5965c;
-  --link: #a9b9ee;
-  --link-hover: #c9d4f6;
-  --line: rgba(169, 185, 238, 0.16);
+  --accent-2: #ee7d46;
+  --link: #8fa0e0;
+  --link-hover: #b8c3ee;
+  --line: rgba(143, 160, 224, 0.16);
   --error: #ff8f80;
   --ok: #9fd8a8;
   --display: 'Fjalla One', 'Arial Narrow', Impact, sans-serif;
