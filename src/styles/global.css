@@ -16,7 +16,7 @@
   --error: #ff8f80;
   --ok: #9fd8a8;
   --display: 'Fjalla One', 'Arial Narrow', Impact, sans-serif;
-  --sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --sans: 'Josefin Sans Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --radius: 14px;
   color-scheme: dark;
 }
@@ -28,7 +28,8 @@ body {
   background: var(--night);
   color: var(--cream);
   font-family: var(--sans);
-  font-size: 1.05rem;
+  /* Body text: 2pt smaller than before (was 1.05rem). */
+  font-size: calc(1.05rem - 2pt);
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
 }
@@ -47,7 +48,7 @@ p { margin: 0 0 1rem; }
 .narrow { width: min(760px, 100% - 2rem); margin-inline: auto; }
 .section { padding: clamp(3.5rem, 8vw, 6rem) 0; }
 .eyebrow { font-family: var(--sans); font-size: 0.75rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.9rem; display: block; }
-.lead { font-size: 1.2rem; color: var(--cream); max-width: 60ch; }
+.lead { font-size: calc(1.2rem - 2pt); color: var(--cream); max-width: 60ch; }
 .muted { color: var(--muted); }
 .center { text-align: center; }
 .center .lead { margin-inline: auto; }
