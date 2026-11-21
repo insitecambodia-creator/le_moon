@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../lib/site';
+interface Props { title: string; heading: string; formType: 'table' | 'birthday' | 'groups'; }
+const { title, heading, formType } = Astro.props;
+---
+<BaseLayout title={title} description="We have received your request and will confirm shortly." noindex>
+  <section class="page-hero">
+    <div class="narrow">
+      <span class="eyebrow">Request received</span>
+      <h1 data-heading={heading}>{heading}</h1>
+      <p class="lead summary" hidden></p>
+      <p class="lead">Our team will check availability and confirm by email, usually within a few hours during opening times. Your table is not booked until you get that confirmation.</p>
+      <p class="muted">Need a quick answer? Call <a href={`tel:${site.phone.e164}`}>{site.phone.display}</a> or message us on <a href={site.telegram.url} rel="noopener">Telegram</a>.</p>
+      <div class="btn-row" style="justify-content:center;margin-top:1.5rem"><a class="btn" href="/menu/">Browse the menu</a><a class="btn" href="/">Back to home</a></div>
+    </div>
+  </section>
+</BaseLayout>
+<script is:inline define:vars={{ formType }}>
+  // Personalise from the form (kept in this tab only, never in the URL) and
+  // tell GTM a real request was sent, once per request.
+  try {
+    var data = JSON.parse(sessionStorage.getItem('lemoon-booking') || 'null');
+    if (data && data.formType === formType && Date.now() - data.sent < 30 * 60 * 1000) {
+      var h1 = document.querySelector('h1[data-heading]');
+      if (data.firstName && h1) h1.textContent = 'Thank you, ' + data.firstName + '!';
+      var summary = document.querySelector('.summary');
+      if (summary && data.date) {
+        var d = new Date(data.date + 'T12:00:00');
+        summary.textContent = 'Your request: ' + (data.guests ? data.guests + ' guests, ' : '') +
+          d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) + (data.time ? ' at ' + data.time : '') + '.';
+        summary.hidden = false;
+      }
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: 'generate_lead', form_type: formType, guests: data.guests });
+      sessionStorage.removeItem('lemoon-booking');
+    }
+  } catch (e) {}
+</script>

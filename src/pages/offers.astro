@@ -1,0 +1,49 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { offers, offersMonth } from '../data/offers';
+---
+<BaseLayout
+  title={`Special offers, ${offersMonth}`}
+  description="This month's deals at Le Moon Rooftop: 2+1 cocktails on Fridays, 2+1 mocktails on Saturdays, buy one get one free pizza on Sundays, wine deals and sharing sets."
+  breadcrumbs={[{ name: 'Offers', path: '/offers/' }]}
+>
+  <section class="page-hero">
+    <div class="narrow">
+      <span class="eyebrow">{offersMonth}</span>
+      <h1>Special offers</h1>
+      <p class="lead">Deals that run all month, on top of the view.</p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:1rem">
+    <div class="wrap offers">
+      {offers.map((o) => (
+        <article class="card offer">
+          {o.image && <Image src={o.image} alt={o.imageAlt} widths={[400, 700]} sizes="(max-width: 700px) 100vw, 360px" />}
+          <div class="body">
+            <span class="eyebrow">{o.when}</span>
+            <h2>{o.title}</h2>
+            <p class="muted">{o.text}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+    <p class="wrap muted center small">Please drink responsibly.</p>
+  </section>
+
+  <section class="section center">
+    <div class="narrow">
+      <h2>Make a night of it</h2>
+      <div class="btn-row"><a class="btn btn-primary" href="/booking/">Book a table</a><a class="btn" href="/menu/">See the full menu</a></div>
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .offers { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+  .offer { padding: 0; overflow: hidden; }
+  .offer img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+  .body { padding: 1.25rem 1.4rem 1.4rem; }
+  .offer h2 { font-size: 1.6rem; margin-bottom: 0.4rem; }
+  .small { font-size: 0.88rem; margin-top: 1.5rem; }
+</style>

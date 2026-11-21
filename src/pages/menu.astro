@@ -1,0 +1,63 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { menus } from '../lib/menus';
+import { photo } from '../lib/images';
+---
+<BaseLayout
+  title="Menu: cocktails, drinks and food"
+  description="See the Le Moon Rooftop food and drinks menus: signature cocktails, mocktails, wine and beer, finger food, small plates, full dinners and a kids' menu."
+  breadcrumbs={[{ name: 'Menu', path: '/menu/' }]}
+>
+  <section class="page-hero">
+    <div class="narrow">
+      <span class="eyebrow">Food and drinks</span>
+      <h1>The menu</h1>
+      <p class="lead">Classic and original cocktails, mocktails, wines and beers, with finger food, small plates and full dinners from the kitchen.</p>
+      <div class="btn-row" style="justify-content:center">
+        <a class="btn btn-primary" href={menus.food.href} data-track="click_menu_pdf">{menus.food.label} (PDF)</a>
+        <a class="btn btn-primary" href={menus.drinks.href} data-track="click_menu_pdf">{menus.drinks.label} (PDF)</a>
+        <a class="btn" href={menus.kids.href} data-track="click_menu_pdf">{menus.kids.label}</a>
+      </div>
+      <p class="muted small">Menus updated {menus.updated}. Prices in US dollars.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap split">
+      <div class="media-frame">
+        {photo('menu') && <Image src={photo('menu')!} alt="Sharing plates of Khmer and international dishes on a table" widths={[480, 800, 1080]} sizes="(max-width: 860px) 100vw, 50vw" />}
+      </div>
+      <div>
+        <h2>From the kitchen</h2>
+        <p>Start with something to share, like our corn ribs or French fries, then move on to dishes from the grill, pizzas and Khmer favourites. We cook with fresh ingredients, and our chefs keep trying new recipes, so the menu keeps changing.</p>
+        <a class="btn" href={menus.food.href} data-track="click_menu_pdf">Open the food menu</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap split">
+      <div>
+        <h2>From the bar</h2>
+        <p>Our bartenders mix the classics and international favourites, plus a series of original Le Moon cocktails. There are mocktails, wines by the glass or bottle, and draft and bottled beers too.</p>
+        <div class="btn-row">
+          <a class="btn" href={menus.drinks.href} data-track="click_menu_pdf">Open the drinks menu</a>
+          <a class="btn" href="/offers/">See this month's offers</a>
+        </div>
+      </div>
+      <div class="media-frame">
+        {photo('cocktails') && <Image src={photo('cocktails')!} alt="Sunset over the Phnom Penh skyline from the Le Moon terrace" widths={[480, 800, 1200]} sizes="(max-width: 860px) 100vw, 50vw" />}
+      </div>
+    </div>
+  </section>
+
+  <section class="section center">
+    <div class="narrow">
+      <h2>Hungry already?</h2>
+      <p class="lead">Book a table for tonight or any evening, from 5pm.</p>
+      <a class="btn btn-primary" href="/booking/">Book a table</a>
+    </div>
+  </section>
+</BaseLayout>
+<style>.small { font-size: 0.9rem; margin-top: 1rem; }</style>

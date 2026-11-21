@@ -1,0 +1,95 @@
+---
+// Gentle scroll motion, mostly on photos:
+//  - photos, cards and gallery tiles fade and rise in as they enter the screen;
+//  - photos in .media-frame settle from a slight zoom and drift a few pixels as you scroll;
+//  - the hero photo moves a little slower than the page (parallax).
+// Nothing happens for visitors who ask for reduced motion, and without JS everything is simply shown.
+---
+<script>
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (!reduce.matches && 'IntersectionObserver' in window) {
+    const root = document.documentElement;
+    root.classList.add('motion');
+
+    const targets = document.querySelectorAll<HTMLElement>('main .media-frame, main .grid > li, main .offer, main .cards > .card, main .split > :not(.media-frame)');
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      },
+      { rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
+    );
+    targets.forEach((el) => {
+      // Stagger siblings in a row (cards, gallery tiles).
+      const parent = el.parentElement;
+      if (parent && (parent.matches('.grid, .cards, .offers'))) {
+        const i = Array.prototype.indexOf.call(parent.children, el);
+        el.style.setProperty('--delay', `${(i % 4) * 70}ms`);
+      }
+      el.classList.add('reveal');
+      io.observe(el);
+    });
+
+    // Scroll-linked drift: hero photo and framed photos.
+    const hero = document.querySelector<HTMLElement>('.hero .bg');
+    const frames = Array.from(document.querySelectorAll<HTMLElement>('main .media-frame img'));
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const vh = window.innerHeight;
+      if (hero) {
+        const y = window.scrollY;
+        if (y < vh * 1.2) hero.style.setProperty('--py', `${Math.min(y * 0.2, vh * 0.2).toFixed(1)}px`);
+      }
+      for (const img of frames) {
+        const r = img.parentElement!.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > vh) continue;
+        // -1 when the frame is just below the screen, +1 when just above.
+        const p = (vh / 2 - (r.top + r.height / 2)) / (vh / 2 + r.height / 2);
+        img.style.setProperty('--py', `${(p * 12).toFixed(1)}px`);
+      }
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+  }
+</script>
+<style is:global>
+  .motion .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--delay, 0ms);
+  }
+  .motion .reveal.in { opacity: 1; transform: none; }
+
+  /* Drift uses `translate` (updated on scroll, no transition); the zoom uses `scale` (eased). */
+  .motion .media-frame img {
+    translate: 0 var(--py, 0px);
+    scale: 1.12;
+    transition: scale 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: translate, scale;
+  }
+  .motion .media-frame.in img { scale: 1.08; }
+
+  .motion .hero .bg {
+    top: -20vh; height: calc(100% + 20vh);
+    translate: 0 var(--py, 0px);
+    will-change: translate;
+    animation: hero-settle 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes hero-settle { from { opacity: 0.55; scale: 1.06; } to { opacity: 1; scale: 1; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .motion .reveal, .motion .media-frame img, .motion .hero .bg { opacity: 1; transform: none; translate: none; scale: none; transition: none; animation: none; }
+  }
+</style>

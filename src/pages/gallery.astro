@@ -1,0 +1,70 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { galleryImages } from '../lib/images';
+import { galleryAlt } from '../data/gallery';
+---
+<BaseLayout
+  title="Photo gallery"
+  description="Photos of Le Moon Rooftop Lounge in Phnom Penh: the terrace at sunset, river and city views, cocktails, food, birthdays and nights out with friends."
+  breadcrumbs={[{ name: 'Gallery', path: '/gallery/' }]}
+>
+  <section class="page-hero">
+    <div class="narrow">
+      <span class="eyebrow">Gallery</span>
+      <h1>Life on the rooftop</h1>
+      <p class="lead">Sunsets over the river, long dinners with friends and the city lights at night.</p>
+    </div>
+  </section>
+  <section class="wrap">
+    <ul class="grid" role="list">
+      {galleryImages.map(({ name, src }, i) => (
+        <li>
+          <a href={src.src} data-lightbox>
+            <Image src={src} alt={galleryAlt[name] ?? 'Le Moon Rooftop Lounge, Phnom Penh'} widths={[360, 600, 900]} sizes="(max-width: 600px) 50vw, (max-width: 1000px) 33vw, 25vw" loading={i < 8 ? 'eager' : 'lazy'} />
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+  <dialog class="lightbox" aria-label="Photo viewer">
+    <img alt="" />
+    <button class="close" aria-label="Close">×</button>
+    <button class="prev" aria-label="Previous photo">‹</button>
+    <button class="next" aria-label="Next photo">›</button>
+  </dialog>
+  <section class="section center">
+    <a class="btn btn-primary" href="/booking/">Book a table</a>
+  </section>
+</BaseLayout>
+<script>
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[data-lightbox]'));
+  const dialog = document.querySelector<HTMLDialogElement>('dialog.lightbox')!;
+  const img = dialog.querySelector('img')!;
+  let index = 0;
+  const show = (i: number) => {
+    index = (i + links.length) % links.length;
+    const thumb = links[index].querySelector('img')!;
+    img.src = links[index].href;
+    img.alt = thumb.alt;
+  };
+  links.forEach((a, i) => a.addEventListener('click', (e) => { e.preventDefault(); show(i); dialog.showModal(); }));
+  dialog.querySelector('.close')!.addEventListener('click', () => dialog.close());
+  dialog.querySelector('.prev')!.addEventListener('click', () => show(index - 1));
+  dialog.querySelector('.next')!.addEventListener('click', () => show(index + 1));
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+  dialog.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft') show(index - 1); if (e.key === 'ArrowRight') show(index + 1); });
+</script>
+<style>
+  .grid { list-style: none; padding: 0; margin: 0; columns: 4 240px; column-gap: 0.75rem; }
+  .grid li { break-inside: avoid; margin-bottom: 0.75rem; }
+  .grid img { width: 100%; border-radius: 10px; transition: opacity 0.2s; }
+  .grid a:hover img { opacity: 0.85; }
+  .lightbox { padding: 0; border: 0; background: transparent; max-width: 96vw; max-height: 94vh; }
+  .lightbox::backdrop { background: rgba(5, 8, 16, 0.92); }
+  .lightbox img { max-width: 96vw; max-height: 90vh; width: auto; border-radius: 8px; }
+  .lightbox button { position: fixed; background: rgba(0, 0, 0, 0.5); color: #fff; border: 0; font-size: 2.2rem; width: 3rem; height: 3rem; border-radius: 50%; cursor: pointer; line-height: 1; }
+  .close { top: 1rem; right: 1rem; }
+  .prev { left: 1rem; top: 50%; }
+  .next { right: 1rem; top: 50%; }
+</style>

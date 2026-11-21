@@ -1,9 +1,110 @@
 ---
-import Base from '../layouts/Base.astro';
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import { site } from '../lib/site';
+import { photo } from '../lib/images';
+import { menus } from '../lib/menus';
+
+// Reviews copied from the old home page (Google reviews, typed in by hand there too).
+const reviews = [
+  { name: 'PB', text: 'Great spot to watch the world go by in Phnom Penh. Very friendly and attentive service.' },
+  { name: 'Arsene Liao', text: 'Nice experience at this rooftop with excellent view of the river and the Royal Palace.' },
+  { name: 'Tony McCreath', text: 'It is a nice, relaxing rooftop with good views. When I was there it was mostly locals, so a change from the hustle on the street.' },
+];
 ---
-<Base title="Le Moon Rooftop">
-  <main>
+<BaseLayout
+  title="Le Moon Rooftop Lounge | Rooftop bar on the Phnom Penh riverside"
+  description="Cocktails, food and sunset views over the Tonle Sap and Mekong rivers from the rooftop of the Amanjaya Pancam Hotel. Open daily from 5pm. Book a table online."
+>
+  <Hero image={photo('hero')} alt="A glowing table lamp on the Le Moon terrace, with the lights of the Phnom Penh riverside behind">
     <h1>Le Moon Rooftop</h1>
-    <p>New site coming soon.</p>
-  </main>
-</Base>
+    <p class="tagline">Phnom Penh's favourite skybar</p>
+    <p class="lead">Cocktails, dinner and a 270-degree view over two rivers and the city, every evening from 5pm.</p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="/booking/">Book a table</a>
+      <a class="btn" href="/menu/">See the menu</a>
+    </div>
+  </Hero>
+
+  <section class="section">
+    <div class="wrap split">
+      <div>
+        <span class="eyebrow">The rooftop</span>
+        <h2>Above the river, under the moon</h2>
+        <p class="lead">Le Moon opened in 2010 on the rooftop of the Amanjaya Pancam Hotel on the riverside, one of the first rooftop bars in the capital.</p>
+        <p class="muted">In the heart of Phnom Penh, our terrace looks out over the Tonle Sap, the Mekong and the city. Our bartenders mix the classics, international favourites and a series of original cocktails you will only find here, and the kitchen serves everything from finger food and small plates to full dinners. With open space and the river breeze, it never feels too hot.</p>
+        <div class="btn-row">
+          <a class="btn" href="/gallery/">See the gallery</a>
+          <a class="btn" href="/contact/">How to find us</a>
+        </div>
+      </div>
+      <div class="media-frame">
+        {photo('terrace') && <Image src={photo('terrace')!} alt="Lounge seating on the Le Moon terrace overlooking the river" widths={[480, 800, 1200]} sizes="(max-width: 860px) 100vw, 50vw" />}
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap">
+      <div class="cards">
+        <a class="card link" href="/menu/">
+          <span class="eyebrow">Menu</span>
+          <h3>Food and drinks</h3>
+          <p class="muted">Cocktails, mocktails, wines and beers, plus finger food, small plates and full dinners. Menus updated {menus.updated}.</p>
+        </a>
+        <a class="card link" href="/offers/">
+          <span class="eyebrow">This month</span>
+          <h3>Offers</h3>
+          <p class="muted">2+1 cocktails on Fridays, pizza deals on Sundays and this month's specials.</p>
+        </a>
+        <a class="card link" href="/birthday/">
+          <span class="eyebrow">Celebrate</span>
+          <h3>Birthdays</h3>
+          <p class="muted">A free cocktail for the birthday guest, free fruit platters for groups and no charge to bring your own cake.</p>
+        </a>
+        <a class="card link" href="/groups/">
+          <span class="eyebrow">Get together</span>
+          <h3>Groups and events</h3>
+          <p class="muted">Team parties and social gatherings from 20 guests, with free-flow drink packages from $16 per guest.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {reviews.length > 0 && (
+    <section class="section">
+      <div class="wrap center">
+        <span class="eyebrow">Guest reviews</span>
+        <h2>What our guests say</h2>
+        <div class="cards">
+          {reviews.map((r) => (
+            <figure class="card">
+              <blockquote>“{r.text}”</blockquote>
+              <figcaption class="muted">{r.name}, Google review</figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="section center">
+    <div class="narrow">
+      <span class="eyebrow">{site.hours.label}</span>
+      <h2>Save your seat for sunset</h2>
+      <p class="lead">Send a booking request online and our team will confirm by email. For tonight or large groups, call or message us.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="/booking/">Book a table</a>
+        <a class="btn" href={`tel:${site.phone.e164}`}>Call {site.phone.display}</a>
+        <a class="btn" href={site.telegram.url} rel="noopener">Telegram</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .alt { background: linear-gradient(180deg, var(--night), var(--night-2) 50%, var(--night)); }
+  .card.link { text-decoration: none; color: inherit; transition: border-color 0.2s, transform 0.2s; }
+  .card.link:hover { border-color: var(--accent); transform: translateY(-2px); }
+  blockquote { margin: 0 0 1rem; font-size: 1.1rem; font-style: italic; }
+</style>

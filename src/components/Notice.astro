@@ -1,0 +1,19 @@
+---
+import { notice } from '../lib/site';
+// Hidden at build time once `until` has passed, and in the browser too.
+const show = notice && new Date(`${notice.until}T23:59:59+07:00`) > new Date();
+---
+{show && notice && (
+  <div class="notice" role="status" data-until={`${notice.until}T23:59:59+07:00`}>
+    {notice.href ? <a href={notice.href}>{notice.text}</a> : notice.text}
+  </div>
+  <script is:inline>
+    document.querySelectorAll('.notice[data-until]').forEach((el) => {
+      if (new Date(el.dataset.until) <= new Date()) el.remove();
+    });
+  </script>
+)}
+<style>
+  .notice { background: var(--accent); color: var(--ink); text-align: center; padding: 0.6rem 1rem; font-size: 0.95rem; font-weight: 500; }
+  .notice a { color: inherit; }
+</style>
