@@ -1,110 +1,352 @@
 ---
+// Home page, built around an evening at Le Moon: from golden hour to moonlight.
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components/Hero.astro';
 import { site } from '../lib/site';
-import { photo } from '../lib/images';
-import { menus } from '../lib/menus';
+import { photo, galleryImages } from '../lib/images';
+import { offers } from '../data/offers';
 
-// Reviews copied from the old home page (Google reviews, typed in by hand there too).
+const g = (n: number) => galleryImages.find((i) => i.name === `le-moon-${String(n).padStart(2, '0')}`)?.src;
+
+const evening = [
+  { time: '17:00', title: 'Golden hour', text: 'Doors open. Grab a sofa on the deck as the sun drops behind the city.', img: g(53), alt: 'Sunset over the river and the terrace' },
+  { time: '18:00', title: 'Blue hour', text: 'The lamps come on and the rivers turn silver. Prime cocktail time.', img: g(46), alt: 'Sofas and bar under the curved roof at dusk' },
+  { time: '19:30', title: 'Dinner', text: 'Grills, pizzas and Khmer plates to share, with the breeze off the Mekong.', img: g(59), alt: 'Cocktails, beers and a grill platter above the river' },
+  { time: '21:00', title: 'Moonlight', text: 'The riverside lights up below. Stay for one more, the night is young.', img: g(51), alt: 'The riverside and city lights at night from the rooftop' },
+];
+
+// Offer shown as "tonight" by weekday (0 = Sunday), chosen in the browser in Phnom Penh time.
+const byDay: Record<number, string> = { 0: 'Buy 1 get 1 free on all pizzas', 2: 'Free glass of wine with On the Grill', 5: '2+1 cocktails', 6: '2+1 mocktails' };
+const fallback = offers[0];
+const tonight = Object.fromEntries(
+  [0, 1, 2, 3, 4, 5, 6].map((d) => {
+    const o = offers.find((x) => x.title === byDay[d]) ?? fallback;
+    return [d, { title: o.title, when: o.when }];
+  }),
+);
+
 const reviews = [
-  { name: 'PB', text: 'Great spot to watch the world go by in Phnom Penh. Very friendly and attentive service.' },
   { name: 'Arsene Liao', text: 'Nice experience at this rooftop with excellent view of the river and the Royal Palace.' },
-  { name: 'Tony McCreath', text: 'It is a nice, relaxing rooftop with good views. When I was there it was mostly locals, so a change from the hustle on the street.' },
+  { name: 'PB', text: 'Great spot to watch the world go by in Phnom Penh. Very friendly and attentive service.' },
+  { name: 'Tony McCreath', text: 'A nice, relaxing rooftop with good views. A change from the hustle on the street.' },
 ];
 ---
 <BaseLayout
   title="Le Moon Rooftop Lounge | Rooftop bar on the Phnom Penh riverside"
   description="Cocktails, food and sunset views over the Tonle Sap and Mekong rivers from the rooftop of the Amanjaya Pancam Hotel. Open daily from 5pm. Book a table online."
 >
-  <Hero image={photo('hero')} alt="A glowing table lamp on the Le Moon terrace, with the lights of the Phnom Penh riverside behind">
-    <h1>Le Moon Rooftop</h1>
-    <p class="tagline">Phnom Penh's favourite skybar</p>
-    <p class="lead">Cocktails, dinner and a 270-degree view over two rivers and the city, every evening from 5pm.</p>
-    <div class="btn-row">
-      <a class="btn btn-primary" href="/booking/">Book a table</a>
-      <a class="btn" href="/menu/">See the menu</a>
-    </div>
-  </Hero>
-
-  <section class="section">
-    <div class="wrap split">
-      <div>
-        <span class="eyebrow">The rooftop</span>
-        <h2>Above the river, under the moon</h2>
-        <p class="lead">Le Moon opened in 2010 on the rooftop of the Amanjaya Pancam Hotel on the riverside, one of the first rooftop bars in the capital.</p>
-        <p class="muted">In the heart of Phnom Penh, our terrace looks out over the Tonle Sap, the Mekong and the city. Our bartenders mix the classics, international favourites and a series of original cocktails you will only find here, and the kitchen serves everything from finger food and small plates to full dinners. With open space and the river breeze, it never feels too hot.</p>
+  <!-- 1. Hero: full-screen blue-hour photo, title bottom-left, live "tonight" panel -->
+  <section class="v2-hero">
+    {g(49) && <Image src={g(49)!} alt="Deck with sofas and city lights at dusk" widths={[640, 1024, 1600, 2200]} sizes="100vw" loading="eager" fetchpriority="high" class="v2-bg" />}
+    <div class="v2-shade"></div>
+    <div class="wrap v2-hero-in">
+      <div class="v2-title">
+        <span class="v2-kicker">Since 2010 · Sisowath Quay, Phnom Penh</span>
+        <h1 aria-label="Le Moon Rooftop">
+          <span class="solid" aria-hidden="true">Le Moon</span>
+          <span class="outline" aria-hidden="true">{'Rooftop'.split('').map((c, i) => <span class="l" style={`--i:${i}`}>{c}</span>)}</span>
+        </h1>
+        <p class="v2-lead">Cocktails, dinner and a 270° view over the Tonle Sap, the Mekong and the city. Every evening from 5pm.</p>
         <div class="btn-row">
-          <a class="btn" href="/gallery/">See the gallery</a>
-          <a class="btn" href="/contact/">How to find us</a>
+          <a class="btn btn-primary" href="/booking/">Book a table</a>
+          <a class="btn btn-ghost" href="/menu/">See the menu</a>
         </div>
       </div>
-      <div class="media-frame">
-        {photo('terrace') && <Image src={photo('terrace')!} alt="Lounge seating on the Le Moon terrace overlooking the river" widths={[480, 800, 1200]} sizes="(max-width: 860px) 100vw, 50vw" />}
+      <aside class="v2-tonight" aria-label="Tonight at Le Moon">
+        <p class="v2-tl">Tonight at Le Moon</p>
+        <dl>
+          <div><dt>Doors</dt><dd>17:00</dd></div>
+          <div><dt>Sunset</dt><dd id="sunset">17:40</dd></div>
+          <div><dt>Moon</dt><dd id="moon">—</dd></div>
+        </dl>
+        <a class="v2-offer" href="/offers/">
+          <span class="v2-tag" id="offer-when">{tonight[5].when}</span>
+          <strong id="offer-title">{tonight[5].title}</strong>
+          <span class="v2-arrow" aria-hidden="true">→</span>
+        </a>
+      </aside>
+    </div>
+    <div class="v2-marquee" aria-hidden="true">
+      <div>
+        {Array.from({ length: 2 }).map(() => (
+          <span>Cocktails <i>☾</i> Sunset <i>☾</i> Two rivers <i>☾</i> Royal Palace views <i>☾</i> Live from 5pm <i>☾</i> Birthdays <i>☾</i> Groups <i>☾</i> </span>
+        ))}
       </div>
     </div>
   </section>
 
-  <section class="section alt">
+  <!-- 2. The evening, hour by hour -->
+  <section class="section v2-evening">
     <div class="wrap">
-      <div class="cards">
-        <a class="card link" href="/menu/">
-          <span class="eyebrow">Menu</span>
-          <h3>Food and drinks</h3>
-          <p class="muted">Cocktails, mocktails, wines and beers, plus finger food, small plates and full dinners. Menus updated {menus.updated}.</p>
+      <div class="v2-head">
+        <span class="eyebrow">An evening at Le Moon</span>
+        <h2>From golden hour<br />to moonlight</h2>
+      </div>
+      <ol class="v2-timeline">
+        {evening.map((s, i) => (
+          <li class={i % 2 ? 'low' : ''}>
+            <div class="v2-ph">{s.img && <Image src={s.img} alt={s.alt} widths={[400, 700, 1000]} sizes="(max-width: 860px) 80vw, 25vw" />}</div>
+            <span class="v2-time">{s.time}</span>
+            <h3>{s.title}</h3>
+            <p class="muted">{s.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- 3. Numbers band -->
+  <section class="v2-band">
+    <div class="wrap v2-stats">
+      <div><strong>2010</strong><span>One of the first rooftops in town</span></div>
+      <div><strong>270°</strong><span>View over rivers, palace and city</span></div>
+      <div><strong>2</strong><span>Rivers meeting below the terrace</span></div>
+      <div><strong>5pm</strong><span>Open every day of the year</span></div>
+    </div>
+  </section>
+
+  <!-- 4. Bento: what to come for -->
+  <section class="section">
+    <div class="wrap">
+      <div class="v2-head row">
+        <div>
+          <span class="eyebrow">Plan your visit</span>
+          <h2>Something for every night</h2>
+        </div>
+        <a class="v2-link" href="/gallery/">Browse the gallery →</a>
+      </div>
+      <div class="v2-bento">
+        <a class="tile big" href="/menu/">
+          {g(25) && <Image src={g(25)!} alt="" widths={[600, 1000, 1400]} sizes="(max-width: 860px) 100vw, 60vw" />}
+          <div class="cap"><span class="eyebrow">Menu</span><h3>Food &amp; drinks</h3><p>Signature cocktails, wines, grills, pizzas and Khmer plates.</p></div>
         </a>
-        <a class="card link" href="/offers/">
-          <span class="eyebrow">This month</span>
-          <h3>Offers</h3>
-          <p class="muted">2+1 cocktails on Fridays, pizza deals on Sundays and this month's specials.</p>
+        <a class="tile" href="/offers/">
+          {g(65) && <Image src={g(65)!} alt="" widths={[400, 800]} sizes="(max-width: 860px) 100vw, 40vw" />}
+          <div class="cap"><span class="eyebrow">This month</span><h3>Offers</h3></div>
         </a>
-        <a class="card link" href="/birthday/">
-          <span class="eyebrow">Celebrate</span>
-          <h3>Birthdays</h3>
-          <p class="muted">A free cocktail for the birthday guest, free fruit platters for groups and no charge to bring your own cake.</p>
+        <a class="tile" href="/birthday/">
+          {photo('birthday-hero') && <Image src={photo('birthday-hero')!} alt="" widths={[400, 800]} sizes="(max-width: 860px) 100vw, 40vw" />}
+          <div class="cap"><span class="eyebrow">Celebrate</span><h3>Birthdays</h3></div>
         </a>
-        <a class="card link" href="/groups/">
-          <span class="eyebrow">Get together</span>
-          <h3>Groups and events</h3>
-          <p class="muted">Team parties and social gatherings from 20 guests, with free-flow drink packages from $16 per guest.</p>
+        <a class="tile wide" href="/groups/">
+          {g(71) && <Image src={g(71)!} alt="" widths={[600, 1000, 1400]} sizes="(max-width: 860px) 100vw, 60vw" />}
+          <div class="cap"><span class="eyebrow">20 to 200 guests</span><h3>Groups &amp; events</h3><p>Free-flow packages from $16 per guest.</p></div>
         </a>
       </div>
     </div>
   </section>
 
-  {reviews.length > 0 && (
-    <section class="section">
-      <div class="wrap center">
-        <span class="eyebrow">Guest reviews</span>
-        <h2>What our guests say</h2>
-        <div class="cards">
-          {reviews.map((r) => (
-            <figure class="card">
-              <blockquote>“{r.text}”</blockquote>
-              <figcaption class="muted">{r.name}, Google review</figcaption>
-            </figure>
-          ))}
-        </div>
+  <!-- 5. One big review -->
+  <section class="section v2-quote">
+    <div class="narrow center">
+      <span class="v2-stars" aria-label="5 stars">★★★★★</span>
+      <div class="v2-quotes">
+        {reviews.map((r, i) => (
+          <figure class={i === 0 ? 'on' : ''}>
+            <blockquote>“{r.text}”</blockquote>
+            <figcaption>{r.name} · Google review</figcaption>
+          </figure>
+        ))}
       </div>
-    </section>
-  )}
+      <div class="v2-dots" role="tablist" aria-label="Reviews">
+        {reviews.map((_, i) => <button aria-label={`Review ${i + 1}`} class={i === 0 ? 'on' : ''} data-i={i}></button>)}
+      </div>
+    </div>
+  </section>
 
-  <section class="section center">
-    <div class="narrow">
-      <span class="eyebrow">{site.hours.label}</span>
-      <h2>Save your seat for sunset</h2>
-      <p class="lead">Send a booking request online and our team will confirm by email. For tonight or large groups, call or message us.</p>
-      <div class="btn-row">
-        <a class="btn btn-primary" href="/booking/">Book a table</a>
-        <a class="btn" href={`tel:${site.phone.e164}`}>Call {site.phone.display}</a>
-        <a class="btn" href={site.telegram.url} rel="noopener">Telegram</a>
+  <!-- 6. Beige closing CTA -->
+  <section class="v2-cta">
+    <div class="wrap v2-cta-in">
+      <div>
+        <span class="eyebrow">{site.hours.label}</span>
+        <h2>Save your seat<br />for sunset</h2>
+        <p>Send a booking request online and our team confirms by email. For tonight or big groups, call or message us.</p>
+      </div>
+      <div class="v2-cta-actions">
+        <a class="v2-big" href="/booking/"><span>Book a table</span><span aria-hidden="true">→</span></a>
+        <a class="v2-big" href="/birthday/"><span>Plan a birthday</span><span aria-hidden="true">→</span></a>
+        <a class="v2-big" href={`tel:${site.phone.e164}`}><span>Call {site.phone.display}</span><span aria-hidden="true">→</span></a>
+        <a class="v2-big" href={site.telegram.url} rel="noopener"><span>Telegram</span><span aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>
 </BaseLayout>
+
+<script define:vars={{ tonight, lat: site.geo.lat, lng: site.geo.lng }}>
+  // Phnom Penh "today" (UTC+7, no DST)
+  const now = new Date();
+  const pp = new Date(now.getTime() + 7 * 3600e3);
+  const day = pp.getUTCDay();
+  const o = tonight[day];
+  if (o) { document.getElementById('offer-title').textContent = o.title; document.getElementById('offer-when').textContent = o.when; }
+
+  // Sunset (NOAA approximation), shown in Phnom Penh time
+  const rad = Math.PI / 180;
+  const start = Date.UTC(pp.getUTCFullYear(), 0, 0);
+  const n = Math.floor((pp.getTime() - start) / 864e5);
+  const gamma = (2 * Math.PI / 365) * (n - 1);
+  const eq = 229.18 * (0.000075 + 0.001868 * Math.cos(gamma) - 0.032077 * Math.sin(gamma) - 0.014615 * Math.cos(2 * gamma) - 0.040849 * Math.sin(2 * gamma));
+  const decl = 0.006918 - 0.399912 * Math.cos(gamma) + 0.070257 * Math.sin(gamma) - 0.006758 * Math.cos(2 * gamma) + 0.000907 * Math.sin(2 * gamma);
+  const ha = Math.acos(Math.cos(90.833 * rad) / (Math.cos(lat * rad) * Math.cos(decl)) - Math.tan(lat * rad) * Math.tan(decl)) / rad;
+  const mins = 720 - 4 * (lng - ha) - eq + 420;
+  const hh = Math.floor(mins / 60), mm = Math.round(mins % 60);
+  document.getElementById('sunset').textContent = `${hh}:${String(mm).padStart(2, '0')}`;
+
+  // Moon phase
+  const synodic = 29.530588853;
+  const age = (((now.getTime() / 864e5 - 10957.76) % synodic) + synodic) % synodic; // ref new moon 2000-01-06 18:14 UTC
+  const phases = ['New moon', 'Waxing crescent', 'First quarter', 'Waxing gibbous', 'Full moon', 'Waning gibbous', 'Last quarter', 'Waning crescent'];
+  document.getElementById('moon').textContent = phases[Math.floor(((age / synodic) * 8) + 0.5) % 8];
+
+  // Review switcher
+  const figs = document.querySelectorAll('.v2-quotes figure');
+  const dots = document.querySelectorAll('.v2-dots button');
+  let cur = 0;
+  const show = (i) => { cur = i; figs.forEach((f, k) => f.classList.toggle('on', k === i)); dots.forEach((d, k) => d.classList.toggle('on', k === i)); };
+  dots.forEach((d) => d.addEventListener('click', () => show(+d.dataset.i)));
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(() => show((cur + 1) % figs.length), 7000);
+</script>
+
 <style>
-  .alt { background: linear-gradient(180deg, var(--night), var(--night-2) 50%, var(--night)); }
-  .card.link { text-decoration: none; color: inherit; transition: border-color 0.2s, transform 0.2s; }
-  .card.link:hover { border-color: var(--accent); transform: translateY(-2px); }
-  blockquote { margin: 0 0 1rem; font-size: 1.1rem; font-style: italic; }
+  /* ---------- Hero ---------- */
+  .v2-hero { position: relative; min-height: min(100svh, 920px); display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; margin-top: -69px; padding-top: 69px; }
+  .v2-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; }
+  .v2-shade { position: absolute; inset: 0; background:
+    linear-gradient(90deg, rgba(11,17,39,0.85) 0%, rgba(11,17,39,0.35) 55%, rgba(11,17,39,0.1) 100%),
+    linear-gradient(180deg, rgba(11,17,39,0.5) 0%, transparent 25%, transparent 55%, var(--night) 100%); }
+  .v2-hero-in { position: relative; display: grid; grid-template-columns: 1fr 320px; gap: 3rem; align-items: end; padding-bottom: 3.2rem; }
+  .v2-kicker { display: block; font-size: 0.78rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--link); margin-bottom: 1.2rem; }
+  .v2-title h1 { font-size: clamp(3.6rem, 11vw, 9.5rem); line-height: 0.88; margin: 0 0 1.4rem; letter-spacing: 0.01em; }
+  .v2-title h1 .solid, .v2-title h1 .outline { display: block; }
+  .v2-title h1 .outline { color: transparent; -webkit-text-stroke: 2px var(--accent); overflow: hidden; padding: 0.04em 0.05em 0.08em; margin: -0.04em -0.05em -0.08em; }
+  .v2-title h1 .l { display: inline-block; }
+
+  /* Opening animation: "LE MOON" rises in, then the letters of "ROOFTOP" slide up one by one,
+     lit solid orange like a sign switching on, and fade back to the outline. */
+  @media (prefers-reduced-motion: no-preference) {
+    .v2-title h1 .solid { animation: v2-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s both; }
+    .v2-title h1 .l {
+      animation:
+        v2-letter 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) calc(0.45s + var(--i) * 0.08s) both,
+        v2-glow 1.6s ease-out calc(1.25s + var(--i) * 0.08s) both;
+    }
+    .v2-kicker, .v2-lead, .v2-title .btn-row { animation: v2-fade 0.8s ease-out both; }
+    .v2-kicker { animation-delay: 0.05s; }
+    .v2-lead { animation-delay: 1.1s; }
+    .v2-title .btn-row { animation-delay: 1.3s; }
+    .v2-tonight { animation: v2-fade 0.8s ease-out 1.6s both; }
+  }
+  @keyframes v2-rise { from { opacity: 0; transform: translateY(0.25em); } to { opacity: 1; transform: none; } }
+  @keyframes v2-letter {
+    from { transform: translateY(105%) rotate(4deg); color: var(--accent); }
+    to { transform: none; color: var(--accent); }
+  }
+  @keyframes v2-glow {
+    0% { color: var(--accent); text-shadow: 0 0 0.25em rgba(228, 94, 29, 0.6); }
+    100% { color: transparent; text-shadow: 0 0 0 rgba(228, 94, 29, 0); }
+  }
+  @keyframes v2-fade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  .v2-lead { font-size: calc(1.25rem - 2pt); max-width: 46ch; margin-bottom: 1.8rem; }
+  .btn-ghost { border-color: rgba(243,231,219,0.55); color: var(--cream); }
+  .btn-ghost:hover { background: var(--cream); color: var(--ink); border-color: var(--cream); }
+
+  .v2-tonight { background: rgba(11,17,39,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(243,231,219,0.18); border-radius: 18px; padding: 1.3rem 1.3rem 1.1rem; }
+  .v2-tl { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.06em; font-size: 1.05rem; margin: 0 0 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+  .v2-tl::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #5fd38a; box-shadow: 0 0 0 4px rgba(95,211,138,0.2); }
+  .v2-tonight dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; margin: 0 0 1rem; }
+  .v2-tonight dt { font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+  .v2-tonight dd { margin: 0.15rem 0 0; font-family: var(--display); font-size: 1.15rem; line-height: 1.2; }
+  .v2-offer { position: relative; display: block; background: var(--accent); color: var(--ink); text-decoration: none; border-radius: 12px; padding: 0.8rem 2.4rem 0.8rem 1rem; transition: background 0.2s; }
+  .v2-offer:hover { background: var(--accent-2); color: var(--ink); }
+  .v2-tag { display: block; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; opacity: 0.75; }
+  .v2-offer strong { font-family: var(--display); font-weight: 400; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.02em; }
+  .v2-arrow { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.3rem; }
+
+  .v2-marquee { position: relative; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; white-space: nowrap; padding: 0.9rem 0; background: var(--night); }
+  .v2-marquee > div { display: inline-block; animation: v2-scroll 40s linear infinite; }
+  .v2-marquee span { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.08em; font-size: 1.1rem; color: var(--cream); }
+  .v2-marquee i { font-style: normal; color: var(--accent); margin: 0 1.2rem; }
+  @keyframes v2-scroll { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .v2-marquee > div { animation: none; } }
+
+  /* ---------- Evening timeline ---------- */
+  .v2-head { margin-bottom: 2.8rem; }
+  .v2-head.row { display: flex; justify-content: space-between; align-items: end; gap: 1rem; flex-wrap: wrap; }
+  .v2-head h2 { margin: 0; font-size: clamp(2.2rem, 5vw, 3.8rem); line-height: 1; }
+  .v2-timeline { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.4rem; position: relative; }
+  .v2-timeline::before { content: ''; position: absolute; left: 0; right: 0; top: calc(var(--ph-h, 340px) + 1.55rem); height: 1px; background: linear-gradient(90deg, var(--accent), var(--link) 60%, transparent); }
+  .v2-timeline li.low { margin-top: 3rem; }
+  .v2-timeline li.low::before { display: none; }
+  .v2-ph { aspect-ratio: 3 / 4; border-radius: 999px 999px 16px 16px; overflow: hidden; background: var(--night-2); margin-bottom: 1.2rem; }
+  .v2-ph img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s; }
+  .v2-timeline li:hover img { transform: scale(1.05); }
+  .v2-time { display: inline-block; font-family: var(--display); font-size: 2.6rem; line-height: 1; color: transparent; -webkit-text-stroke: 1.2px var(--accent); margin-bottom: 0.4rem; }
+  .v2-timeline h3 { text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+  .v2-timeline::before { display: none; }
+
+  /* ---------- Stats band ---------- */
+  .v2-band { background: var(--brand-blue); padding: clamp(2.5rem, 6vw, 4rem) 0; }
+  .v2-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+  .v2-stats div { border-left: 1px solid rgba(243,231,219,0.25); padding-left: 1.2rem; }
+  .v2-stats strong { display: block; font-family: var(--display); font-weight: 400; font-size: clamp(2.6rem, 5vw, 4rem); line-height: 1; color: var(--cream); }
+  .v2-stats span { display: block; margin-top: 0.5rem; color: rgba(243,231,219,0.8); font-size: 0.95rem; max-width: 20ch; }
+
+  /* ---------- Bento ---------- */
+  .v2-link { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); text-decoration: none; }
+  .v2-bento { display: grid; grid-template-columns: 1.4fr 1fr 1fr; grid-template-rows: 300px 300px; gap: 1rem; }
+  .tile { position: relative; overflow: hidden; border-radius: 18px; color: var(--cream); text-decoration: none; background: var(--night-2); }
+  .tile.big { grid-row: span 2; }
+  .tile.wide { grid-column: span 2; }
+  .tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s; }
+  .tile::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 35%, rgba(11,17,39,0.92)); }
+  .tile:hover img { transform: scale(1.05); }
+  .tile:hover { color: var(--cream); }
+  .cap { position: absolute; z-index: 1; left: 1.4rem; right: 1.4rem; bottom: 1.2rem; }
+  .cap .eyebrow { margin-bottom: 0.3rem; color: var(--cream); opacity: 0.85; }
+  .cap h3 { font-size: clamp(1.5rem, 2.4vw, 2.1rem); text-transform: uppercase; margin: 0; }
+  .cap p { margin: 0.4rem 0 0; color: rgba(243,231,219,0.85); max-width: 38ch; }
+
+  /* ---------- Quote ---------- */
+  .v2-quote { background: radial-gradient(ellipse at 50% 100%, var(--night-3), var(--night) 70%); }
+  .v2-stars { color: var(--accent); letter-spacing: 0.3em; font-size: 1.1rem; }
+  .v2-quotes { display: grid; margin: 1.2rem 0 1.6rem; }
+  .v2-quotes figure { grid-area: 1 / 1; margin: 0; opacity: 0; transition: opacity 0.6s; pointer-events: none; }
+  .v2-quotes figure.on { opacity: 1; pointer-events: auto; }
+  .v2-quotes blockquote { margin: 0 0 1.2rem; font-family: var(--display); text-transform: uppercase; font-size: clamp(1.7rem, 3.6vw, 2.8rem); line-height: 1.15; letter-spacing: 0.01em; }
+  .v2-quotes figcaption { color: var(--link); letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.8rem; }
+  .v2-dots { display: flex; justify-content: center; gap: 0.6rem; }
+  .v2-dots button { width: 34px; height: 4px; border: 0; border-radius: 4px; background: rgba(243,231,219,0.25); cursor: pointer; padding: 0; }
+  .v2-dots button.on { background: var(--accent); }
+
+  /* ---------- Beige CTA ---------- */
+  .v2-cta { background: var(--cream); color: var(--brand-blue); padding: clamp(3.5rem, 8vw, 6rem) 0; }
+  .v2-cta-in { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+  .v2-cta h2 { font-size: clamp(2.4rem, 6vw, 4.6rem); line-height: 0.95; color: var(--brand-blue); }
+  .v2-cta p { color: #3b4570; max-width: 42ch; }
+  .v2-cta .eyebrow { color: var(--accent); }
+  .v2-cta-actions { display: grid; }
+  .v2-big { display: flex; justify-content: space-between; align-items: center; padding: 1.15rem 0.2rem; border-bottom: 1px solid rgba(40,61,143,0.25); color: var(--brand-blue); text-decoration: none; font-family: var(--display); text-transform: uppercase; font-size: clamp(1.4rem, 2.6vw, 2rem); letter-spacing: 0.02em; transition: color 0.2s, padding 0.2s; }
+  .v2-big:first-child { border-top: 1px solid rgba(40,61,143,0.25); color: var(--accent); }
+  .v2-big:hover { color: var(--accent); padding-left: 0.8rem; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 960px) {
+    .v2-hero-in { grid-template-columns: 1fr; gap: 2rem; }
+    .v2-tonight { max-width: 420px; }
+    .v2-timeline { grid-template-columns: repeat(4, 72vw); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 1rem; margin-right: -1rem; padding-right: 1rem; }
+    .v2-timeline li { scroll-snap-align: start; }
+    .v2-timeline li.low { margin-top: 0; }
+    .v2-stats { grid-template-columns: repeat(2, 1fr); row-gap: 2rem; }
+    .v2-bento { grid-template-columns: 1fr 1fr; grid-template-rows: 340px 220px 240px; }
+    .tile.big { grid-column: span 2; grid-row: auto; }
+    .tile.wide { grid-column: span 2; }
+    .v2-cta-in { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .v2-kicker { font-size: 0.68rem; letter-spacing: 0.16em; }
+    .v2-hero { min-height: auto; padding-top: 220px; }
+    .v2-title h1 .outline { -webkit-text-stroke-width: 1.4px; }
+    .v2-bento { grid-template-columns: 1fr; grid-template-rows: none; grid-auto-rows: 240px; }
+    .tile.big, .tile.wide { grid-column: auto; }
+  }
 </style>
